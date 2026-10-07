@@ -4,4 +4,4 @@ set -e
 cd "$(dirname "$0")/.."
 source /opt/ros/${ROS_DISTRO:-jazzy}/setup.bash
 source install/setup.bash
-ros2 launch tf_goal_localizer tf_demo.launch.py
+ros2 launch tf_goal_localizer tf_demo.launch.py "$@"

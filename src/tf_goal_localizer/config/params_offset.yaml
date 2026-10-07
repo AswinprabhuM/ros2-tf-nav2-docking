@@ -1,0 +1,7 @@
+tf_goal_localizer:
+  ros__parameters:
+    # Optional demo: odom -> base_link is still constant, but not identity,
+    # so odom and base_link don't sit on top of each other in RViz.
+    odom_base_x: 1.0
+    odom_base_y: 0.5
+    odom_base_yaw: 0.0
