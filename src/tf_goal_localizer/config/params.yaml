@@ -1,0 +1,7 @@
+tf_goal_localizer:
+  ros__parameters:
+    # Constant odom -> base_link offset. Identity (all 0) per the spec;
+    # the demo uses a visible offset so odom and base_link can be told apart in RViz.
+    odom_base_x: 1.0
+    odom_base_y: 0.5
+    odom_base_yaw: 0.0

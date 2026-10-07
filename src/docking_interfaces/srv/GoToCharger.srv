@@ -1,0 +1,6 @@
+# Request: dock at the charging station (TODO: align fields with the question paper)
+string charger_id
+---
+# Response
+bool success
+string message

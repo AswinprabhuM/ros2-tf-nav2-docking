@@ -1,0 +1,9 @@
+# Goal (TODO: align fields with the question paper)
+string charger_id
+---
+# Result
+bool success
+string message
+---
+# Feedback
+float32 distance_remaining

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>docking_comparison</name>
+  <version>0.1.0</version>
+  <description>Docking at a charger implemented as a service (A) and as an action (B).</description>
+  <maintainer email="m.aswinprabhu21@gmail.com">AswinprabhuM</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>rclcpp_action</depend>
+  <depend>docking_interfaces</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

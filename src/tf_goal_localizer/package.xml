@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>tf_goal_localizer</name>
+  <version>0.1.0</version>
+  <description>Broadcasts map-&gt;odom-&gt;base_link and moves map-&gt;odom to put base_link at a 2D goal pose.</description>
+  <maintainer email="m.aswinprabhu21@gmail.com">AswinprabhuM</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>geometry_msgs</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf2_geometry_msgs</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
