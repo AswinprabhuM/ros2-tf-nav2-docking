@@ -4,4 +4,5 @@ set -e
 cd "$(dirname "$0")/.."
 source /opt/ros/${ROS_DISTRO:-jazzy}/setup.bash
 source install/setup.bash
-ros2 launch docking_comparison service_demo.launch.py
+# usage: ./scripts/run_task3.sh service   or   ./scripts/run_task3.sh action
+ros2 launch docking_comparison ${1:-service}_demo.launch.py

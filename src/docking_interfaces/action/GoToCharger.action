@@ -1,9 +1,10 @@
-# Goal (TODO: align fields with the question paper)
+# Goal
 string charger_id
 ---
 # Result
 bool success
 string message
+float32 travel_time
 ---
 # Feedback
 float32 distance_remaining

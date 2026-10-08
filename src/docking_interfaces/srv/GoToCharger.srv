@@ -1,6 +1,7 @@
-# Request: dock at the charging station (TODO: align fields with the question paper)
+# Request
 string charger_id
 ---
 # Response
 bool success
 string message
+float32 travel_time
