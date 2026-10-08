@@ -10,7 +10,7 @@ built with colcon on ROS 2 Jazzy (Ubuntu 24.04).
 |------|---------|--------|
 | 1. TF frames + 2D Goal Pose | `tf_goal_localizer` | done |
 | 2. Nav2 controller plugin | `p_controller_plugin` | done |
-| 3. Action vs Service | `docking_interfaces`, `docking_comparison` | todo |
+| 3. Action vs Service | `docking_interfaces`, `docking_comparison` | done |
 
 ## Build
 ```bash
@@ -145,11 +145,43 @@ Checked without RViz: initial pose (-2, -0.5), `NavigateToPose` goal (0.5, 0.5) 
 `SUCCEEDED` and the robot stops at about (0.27, 0.49), inside the 0.25 m goal tolerance.
 
 ## Task 3 — Action vs Service (`docking_interfaces`, `docking_comparison`)
-TODO: run, expected output. See [docs/ACTION_VS_SERVICE.md](docs/ACTION_VS_SERVICE.md)
+
+"Go to charging station" takes 30 s. Version A is a service, version B is an action.
+`docking_interfaces` has `GoToCharger.srv` and `GoToCharger.action`. Comparison and
+explanations: [docs/ACTION_VS_SERVICE.md](docs/ACTION_VS_SERVICE.md).
+
+**Run**
+```bash
+./scripts/run_task3.sh service   # server + client with a 5 s timeout
+./scripts/run_task3.sh action    # server + client, 30 s with feedback
+```
+or the nodes by hand: `ros2 run docking_comparison service_server` / `service_client` / `action_server` / `action_client`.
+`action_client cancel` cancels the goal after 5 s.
+
+**Service output**
+```
+[client] Requesting charging station trip via SERVICE...
+[client] Waiting for response (5s timeout)...
+[client] TIMED OUT - service did not respond within 5 seconds!
+```
+The server keeps running and still "responds" after 30 s, nobody receives it.
+
+**Action output**
+```
+[client] Goal accepted - receiving feedback...
+[feedback] Distance remaining: 58.0 m
+[feedback] Distance remaining: 56.0 m
+...
+[client] Result: Arrived at charging station! Travel time: 30.0s
+```
+The trip is 60 m at 2 m/s so it takes 30 s. Cancel prints `Goal canceled after 5.0s`.
 
 ## Video
-TODO
+Task 1 in RViz: [media/task1.mp4](media/task1.mp4)
+
+All three frames start on top of each other at the origin. After a goal on `/goal_pose`
+(first (3, 2) at 45 degrees, then (-2, 3) at 135 degrees), `odom` and `base_link` move
+there and `map` stays put, because only `map -> odom` changes.
 
 ## Docs
-- [docs/PLAN.md](docs/PLAN.md)
-- [docs/WALKTHROUGH.md](docs/WALKTHROUGH.md)
+- [docs/ACTION_VS_SERVICE.md](docs/ACTION_VS_SERVICE.md): service vs action, timeout behaviour, when to use which
