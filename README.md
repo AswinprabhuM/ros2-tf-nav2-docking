@@ -177,11 +177,16 @@ The server keeps running and still "responds" after 30 s, nobody receives it.
 The trip is 60 m at 2 m/s so it takes 30 s. Cancel prints `Goal canceled after 5.0s`.
 
 ## Video
-Task 1 in RViz: [media/task1.mp4](media/task1.mp4)
-
-All three frames start on top of each other at the origin. After a goal on `/goal_pose`
-(first (3, 2) at 45 degrees, then (-2, 3) at 135 degrees), `odom` and `base_link` move
-there and `map` stays put, because only `map -> odom` changes.
+- Task 1, TF frames in RViz: [media/task1.mp4](media/task1.mp4)
+  All three frames start on top of each other at the origin. After a goal on `/goal_pose`
+  (first (3, 2) at 45 degrees, then (-2, 3) at 135 degrees), `odom` and `base_link` move
+  there and `map` stays put, because only `map -> odom` changes.
+- Task 2, Nav2 with the P controller plugin: [media/task2.mp4](media/task2.mp4)
+  TurtleBot3 sim in RViz. I set the initial pose, send a Nav2 goal, and the robot drives
+  there with `FollowPath` set to `p_controller_plugin::PController`.
+- Task 3, service vs action: [media/task3.mp4](media/task3.mp4)
+  The service client times out after 5 s while the server keeps going. The action client
+  gets feedback every second and the result after 30 s.
 
 ## Docs
 - [docs/ACTION_VS_SERVICE.md](docs/ACTION_VS_SERVICE.md): service vs action, timeout behaviour, when to use which
