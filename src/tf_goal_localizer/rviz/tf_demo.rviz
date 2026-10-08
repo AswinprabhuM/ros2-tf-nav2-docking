@@ -10,6 +10,7 @@ Visualization Manager:
       Show Names: true
       Show Axes: true
       Show Arrows: true
+      Marker Scale: 3
   Enabled: true
   Global Options:
     Fixed Frame: map
@@ -23,3 +24,8 @@ Visualization Manager:
     Current:
       Class: rviz_default_plugins/TopDownOrtho
       Scale: 80
+Window Geometry:
+  Height: 1080
+  Width: 1920
+  X: 0
+  Y: 0
