@@ -9,7 +9,7 @@ built with colcon on ROS 2 Jazzy (Ubuntu 24.04).
 | Task | Package | Status |
 |------|---------|--------|
 | 1. TF frames + 2D Goal Pose | `tf_goal_localizer` | done |
-| 2. Nav2 controller plugin | `p_controller_plugin` | todo |
+| 2. Nav2 controller plugin | `p_controller_plugin` | done |
 | 3. Action vs Service | `docking_interfaces`, `docking_comparison` | todo |
 
 ## Build
@@ -72,7 +72,77 @@ calculation: (3, 2) + rotate45(-1, -0.5).
 A goal whose `frame_id` is not `map` is ignored with a warning.
 
 ## Task 2 — Nav2 P-controller plugin (`p_controller_plugin`)
-TODO: run, expected output
+
+A Nav2 controller plugin (`p_controller_plugin::PController`, inherits
+`nav2_core::Controller`) that follows the global plan with a simple P controller.
+
+**Strategy:** drive at a constant linear speed towards the nearest unvisited waypoint
+and steer with `angular_vel = kp * heading_error`, clamped to `max_angular_vel`.
+A waypoint counts as visited when the robot is within `waypoint_tolerance` of it.
+When all waypoints are visited the command is zero.
+
+**Lifecycle:** the node is kept as a `weak_ptr`. Parameters are declared and read in
+`configure()`, `cleanup()` resets the plan and the tf pointer. `setSpeedLimit()` scales
+the linear speed.
+
+**One thing that bit me:** `controller_server` gives the robot pose in the local costmap
+frame (`odom`), but the plan is in `map`. The plugin transforms each waypoint into the
+pose's frame with the tf buffer before using it. Without that the robot steers
+towards the wrong point (I saw it drive into a wall). There is a unit test for it.
+
+**Parameters** (under `FollowPath`, see `params/p_controller.yaml`)
+- `kp`, `linear_vel`, `max_angular_vel`, `waypoint_tolerance`
+
+**Files**
+- Header and source: `include/p_controller_plugin/p_controller.hpp`, `src/p_controller.cpp`
+  (ends with `PLUGINLIB_EXPORT_CLASS(p_controller_plugin::PController, nav2_core::Controller)`)
+- Manifest: `plugin.xml`
+
+`plugin.xml`
+```xml
+<library path="p_controller">
+  <class type="p_controller_plugin::PController"
+         base_class_type="nav2_core::Controller">
+    <description>Proportional heading controller</description>
+  </class>
+</library>
+```
+
+`CMakeLists.txt` (library and plugin registration)
+```cmake
+add_library(p_controller SHARED src/p_controller.cpp)
+ament_target_dependencies(p_controller ${deps})
+
+# installs plugin.xml and registers it under the nav2_core plugin group
+pluginlib_export_plugin_description_file(nav2_core plugin.xml)
+
+install(TARGETS p_controller
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin)
+```
+
+**How Nav2 finds the plugin:** `package.xml` has `<nav2_core plugin="${prefix}/plugin.xml" />`
+in its export section, and the CMake line above installs `plugin.xml` and registers it
+in the ament index. When `controller_server` reads `FollowPath.plugin: "p_controller_plugin::PController"`,
+pluginlib looks up that class name in the registered manifests, loads `libp_controller.so`
+(the `path` in `plugin.xml`) and creates the object.
+
+**Unit tests**
+```bash
+colcon test --packages-select p_controller_plugin && colcon test-result --verbose
+```
+The gtest loads the plugin through pluginlib (like `controller_server` does) and checks
+the output on a straight path: driving straight, steering back, clamping, visiting
+waypoints, stopping at the end, speed limit and the `odom`/`map` frame case.
+
+**Run it in Nav2:** put the `FollowPath` block from `params/p_controller.yaml` into the
+`controller_server` section of your Nav2 params and launch Nav2 as usual (I used the
+TurtleBot3 Gazebo sim from `nav2_bringup`, with the stock params and only `FollowPath`
+replaced).
+
+Checked without RViz: initial pose (-2, -0.5), `NavigateToPose` goal (0.5, 0.5) ends with
+`SUCCEEDED` and the robot stops at about (0.27, 0.49), inside the 0.25 m goal tolerance.
 
 ## Task 3 — Action vs Service (`docking_interfaces`, `docking_comparison`)
 TODO: run, expected output. See [docs/ACTION_VS_SERVICE.md](docs/ACTION_VS_SERVICE.md)

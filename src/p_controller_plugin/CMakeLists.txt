@@ -8,21 +8,11 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(ament_cmake REQUIRED)
 
-# Nav2 may not be installed (e.g. on the dev machine). Skip this package instead of
-# failing the whole workspace build.
-find_package(nav2_core QUIET)
-if(NOT nav2_core_FOUND)
-  message(WARNING "nav2_core not found - skipping p_controller_plugin. "
-                  "Install ros-$ENV{ROS_DISTRO}-navigation2 to build it.")
-  ament_package()
-  return()
-endif()
-
+find_package(nav2_core REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
-find_package(visualization_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
@@ -30,7 +20,7 @@ find_package(pluginlib REQUIRED)
 find_package(nav2_util REQUIRED)
 find_package(nav2_costmap_2d REQUIRED)
 
-set(deps rclcpp rclcpp_lifecycle geometry_msgs nav_msgs visualization_msgs
+set(deps rclcpp rclcpp_lifecycle geometry_msgs nav_msgs
   tf2 tf2_ros tf2_geometry_msgs pluginlib nav2_core nav2_util nav2_costmap_2d)
 
 add_library(p_controller SHARED src/p_controller.cpp)
@@ -50,9 +40,16 @@ install(DIRECTORY include/ DESTINATION include)
 install(DIRECTORY params DESTINATION share/${PROJECT_NAME})
 
 if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
-  # TODO: ament_add_gtest(test_p_controller test/test_p_controller.cpp)
+  # Individual linters instead of ament_lint_auto: no per-file copyright headers
+  # (the repo has a top-level LICENSE), so copyright checks are left out.
+  find_package(ament_cmake_cpplint REQUIRED)
+  find_package(ament_cmake_uncrustify REQUIRED)
+  ament_cpplint(FILTERS -legal/copyright)
+  ament_uncrustify()
+  find_package(ament_cmake_gtest REQUIRED)
+  ament_add_gtest(test_p_controller test/test_p_controller.cpp)
+  target_link_libraries(test_p_controller p_controller)
+  ament_target_dependencies(test_p_controller ${deps})
 endif()
 
 ament_export_include_directories(include)

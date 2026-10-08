@@ -1,6 +1,10 @@
+# Snippet for the controller_server section of a Nav2 params file.
 controller_server:
   ros__parameters:
     controller_plugins: ["FollowPath"]
     FollowPath:
       plugin: "p_controller_plugin::PController"
-      # TODO: kp, linear_vel, max_angular_vel, goal tolerance
+      kp: 1.5                   # angular vel = kp * heading error
+      linear_vel: 0.2           # constant forward speed [m/s]
+      max_angular_vel: 1.0      # clamp for angular vel [rad/s]
+      waypoint_tolerance: 0.15  # waypoint counts as visited within this distance [m]

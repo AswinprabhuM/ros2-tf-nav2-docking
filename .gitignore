@@ -4,3 +4,7 @@ log/
 *.pyc
 __pycache__/
 .vscode/
+
+# local sim helpers, not part of the submission
+src/p_controller_plugin/params/nav2_p_controller_params.yaml
+scripts/run_task2.sh
