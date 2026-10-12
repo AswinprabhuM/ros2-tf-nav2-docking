@@ -1,6 +1,7 @@
 tf_goal_localizer:
   ros__parameters:
-    # Constant odom -> base_link transform. Identity (all 0) as the question asks.
-    odom_base_x: 0.0
-    odom_base_y: 0.0
+    # Constant odom -> base_link transform. Not identity, so odom and base_link
+    # don't sit on top of each other in RViz. Set all to 0 for identity.
+    odom_base_x: 1.0
+    odom_base_y: 1.0
     odom_base_yaw: 0.0

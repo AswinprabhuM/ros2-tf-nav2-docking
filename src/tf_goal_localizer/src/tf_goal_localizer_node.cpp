@@ -1,5 +1,6 @@
 // Task 1: broadcast map -> odom -> base_link and move base_link to the 2D goal
-// by changing only map -> odom.
+// by changing map -> odom. Everything starts as identity, on the first goal
+// odom -> base_link gets its fixed offset and stays there.
 //   T_map_base = T_map_odom * T_odom_base, and we want T_map_base = goal
 //   so T_map_odom = T_map_goal * inverse(T_odom_base)
 #include <chrono>
@@ -22,17 +23,18 @@ public:
   TfGoalLocalizer()
   : Node("tf_goal_localizer")
   {
-    // odom -> base_link never changes. Default is identity, the demo params use an offset
+    // the offset odom -> base_link takes on the first goal, 0 is identity
     const double x = declare_parameter("odom_base_x", 0.0);
     const double y = declare_parameter("odom_base_y", 0.0);
     const double yaw = declare_parameter("odom_base_yaw", 0.0);
 
     tf2::Quaternion q;
     q.setRPY(0.0, 0.0, yaw);
-    t_odom_base_ = tf2::Transform(q, tf2::Vector3(x, y, 0.0));
+    odom_base_offset_ = tf2::Transform(q, tf2::Vector3(x, y, 0.0));
 
-    // no goal yet, so map and odom sit on top of each other
+    // no goal yet, so all three frames sit on top of each other
     t_map_odom_ = tf2::Transform::getIdentity();
+    t_odom_base_ = tf2::Transform::getIdentity();
 
     broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
@@ -43,7 +45,7 @@ public:
     timer_ = create_wall_timer(100ms, std::bind(&TfGoalLocalizer::on_timer, this));
 
     RCLCPP_INFO(
-      get_logger(), "Publishing tf at 10 Hz, odom->base_link = (%.2f, %.2f, yaw %.2f)",
+      get_logger(), "Publishing tf at 10 Hz, odom->base_link offset on a goal: (%.2f, %.2f, %.2f)",
       x, y, yaw);
   }
 
@@ -61,7 +63,9 @@ private:
     tf2::Transform t_map_goal;
     tf2::fromMsg(msg->pose, t_map_goal);
 
-    // odom -> base_link stays as it is, only map -> odom moves
+    // odom -> base_link gets its offset (the same one on every goal), then map -> odom
+    // is chosen so base_link ends up on the goal
+    t_odom_base_ = odom_base_offset_;
     t_map_odom_ = t_map_goal * t_odom_base_.inverse();
 
     RCLCPP_INFO(
@@ -90,6 +94,7 @@ private:
     return msg;
   }
 
+  tf2::Transform odom_base_offset_;
   tf2::Transform t_map_odom_;
   tf2::Transform t_odom_base_;
 

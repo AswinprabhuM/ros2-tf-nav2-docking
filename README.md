@@ -38,21 +38,20 @@ I use `tf2::Transform` and `tf2::Quaternion` for this, so the full orientation i
 handled, not just yaw.
 
 **Parameters** (`config/params.yaml`)
-- `odom_base_x`, `odom_base_y`, `odom_base_yaw`: the constant `odom -> base_link`
-  transform. The default is 0, which is identity as the question asks, so before a goal
-  all three frames sit on top of each other.
-- `config/params_offset.yaml` is an optional demo with x=1.0, y=0.5, so `odom` and
-  `base_link` can be told apart in RViz. The code is the same either way.
+- `odom_base_x`, `odom_base_y`, `odom_base_yaw`: the `odom -> base_link` offset the robot
+  gets on a goal. The demo uses x=1.0, y=1.0, so `odom` and `base_link` can be told apart
+  in RViz. Set all three to 0 and it stays identity, the code is the same either way.
+
+At start everything is identity, so `map`, `odom` and `base_link` sit on top of each other.
+On a goal `odom -> base_link` takes the offset (and keeps it), and `map -> odom` is
+calculated so `base_link` lands on the goal.
 
 **Run it** (opens RViz too)
 ```bash
 ./scripts/run_task1.sh
 ```
-Click **2D Goal Pose** in RViz. `base_link` jumps to the click, and `odom` moves with it.
-For the offset demo:
-```bash
-./scripts/run_task1.sh params_file:=$PWD/src/tf_goal_localizer/config/params_offset.yaml
-```
+Click **2D Goal Pose** in RViz. `base_link` jumps to the click and `odom` moves with it,
+with `base_link` at the same offset from `odom`.
 
 **Check it without RViz**
 ```bash
@@ -61,13 +60,13 @@ ros2 topic pub --once /goal_pose geometry_msgs/msg/PoseStamped \
   "{header: {frame_id: map}, pose: {position: {x: 3.0, y: 2.0}, orientation: {z: 0.3826834, w: 0.9238795}}}"
 ros2 run tf2_ros tf2_echo map base_link
 ```
-Goal (3, 2, yaw = pi/4) gives:
+Before a goal everything reads 0. Goal (3, 2, yaw = pi/4) gives:
 ```
 Translation: [3.000, 2.000, 0.000]
 Rotation: in RPY (degree) [0.000, -0.000, 45.000]
 ```
-`map -> odom` comes out as (2.646, 0.939) with 45 degrees. That matches the hand
-calculation: (3, 2) + rotate45(-1, -0.5).
+`map -> odom` comes out as (3.000, 0.586) with 45 degrees. That matches the hand
+calculation: (3, 2) + rotate45(-1, -1).
 
 A goal whose `frame_id` is not `map` is ignored with a warning.
 
